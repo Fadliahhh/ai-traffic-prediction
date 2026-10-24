@@ -1,19 +1,32 @@
-
+import os
+import joblib
+import gdown
 import streamlit as st
 import pandas as pd
-import joblib
 
-from datetime import date
-
-st.set_page_config(
-    page_title="AI Traffic Prediction",
-    page_icon="🚦",
-    layout="wide"
-)
+MODEL_PATH = "traffic_model.joblib"
+MODEL_FILE_ID = "13FS9Gqgc2K627sa8krNCO-bpgyFhlzVU"
 
 @st.cache_resource
 def load_artifact():
-    return joblib.load("traffic_model.joblib")
+    if not os.path.exists(MODEL_PATH):
+        url = (
+            "https://drive.google.com/uc?id="
+            + MODEL_FILE_ID
+        )
+
+        downloaded = gdown.download(
+            url,
+            MODEL_PATH,
+            quiet=False
+        )
+
+        if downloaded is None:
+            raise RuntimeError(
+                "Gagal mengunduh model dari Google Drive."
+            )
+
+    return joblib.load(MODEL_PATH)
 
 artifact = load_artifact()
 model = artifact["model"]
